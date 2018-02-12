@@ -17,10 +17,6 @@
             'data' : null
         },options);
 
-        def.data = $.extend({
-            'length' : def.pageLength
-        },def.data);
-
         var url = 'bower_components/datatables.net/i18n/' + def.language + '.json';
 
         var opt = $.extend({},{

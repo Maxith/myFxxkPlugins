@@ -29,16 +29,29 @@
         onSelected: function (myPlugin) {
         }
     };
-    //颜色地图
-    var colorMap = {};
-    var getRandomColor = function (num) {
-        var result = colorMap[num];
-        if (!result){
-            result = 'hsla('+ Math.floor(Math.random()*360) +',70%,90%,1)';
-            colorMap[num] = result;
-        }
-        return result;
-    }
+    //预置颜色
+    var colorArr = [
+        "dee1f4",
+        "d2ddf4",
+        "c7d9f5",
+        "bcd5f5",
+        "b1d2f6",
+        "a6cef6",
+        "9bcaf7",
+        "90c7f7",
+        "85c3f8",
+        "7abff8",
+        "6fbcf9",
+        "63b8fa",
+        "58b4fa",
+        "4db0fb",
+        "42adfb",
+        "37a9fc",
+        "2ca5fc",
+        "21a2fd",
+        "169efd",
+        "0b9afe"
+    ];
 
     var language = zh;
 
@@ -114,20 +127,34 @@
         var opt = myPlugin.opt,
             content = '',
             counter = 0;
+        //颜色组
+        myPlugin.color = new Array().concat(colorArr);
+        myPlugin.colorMap = {};
+
         for (var day = 0; day < language.days.length; day++) {
             var tr = '<tr class="rate-table-row">',
                 tDay = '<td class="rate-table-day">' + language.days[day] + '</td>';
-
             tr += tDay;
 
+            var lastKey = null;
             for (var time = 0; time < opt.times; time++) {
-                var key = opt.datas && opt.datas[counter] ? opt.datas[counter].key : opt.defaultData.key,
-                    value = opt.datas && opt.datas[counter] ? opt.datas[counter].value : opt.defaultData.value;
-                var td = '<td class="rate-table-td" data-row = "' + day
-                    + '" data-col = "' + time
-                    + '" data-value = "' + key + '" style="background-color: ' + getRandomColor(key) +'">' + value + '</td>';
+                var key, value, color;
 
+                key = opt.datas && opt.datas[counter] ? opt.datas[counter] : opt.defaultData.key;
+                color = opt.datas && opt.datas[counter] && key != opt.defaultData.key ? getColor(myPlugin, key) : '';
+
+                if (key != opt.defaultData.key) {
+                    value = key != lastKey ? opt.datas[counter] : '';
+                } else {
+                    value = opt.defaultData.value;
+                }
+
+                var td = '<td class="rate-table-td #color#" data-row="' + day + '" data-col="' + time + '" data-value="' + key + '">' + value + '</td>';
+                td = td.replace(/#color#/g, 'rate-table-td-' + color)
                 tr += td;
+
+                //记录上一个值
+                lastKey = key;
                 //计数器自增长
                 counter++;
             }
@@ -149,7 +176,7 @@
      * 事件绑定
      */
     var bindEvent = function (myPlugin) {
-        var $this = myPlugin.$this, opt = myPlugin.opt;
+        var $this = myPlugin.$this;
 
         //清空事件,再绑定
         $this.off('mouseup', '.rate-table-td');
@@ -160,10 +187,9 @@
             var end = new location(this);
             myPlugin.end = end;
 
-            $(this).addClass('active');
             //触发结束事件
-            if (typeof opt.onSelected !== 'undefined') {
-                opt.onSelected(myPlugin);
+            if (typeof myPlugin.opt.onSelected !== 'undefined') {
+                myPlugin.opt.onSelected(myPlugin);
             }
         });
         $this.on('mousedown', '.rate-table-td', function () {
@@ -172,10 +198,11 @@
             var start = new location(this);
             myPlugin.start = start;
 
+            $(this).removeClass('rate-table-td-' + getColor(myPlugin, $(this).attr('data-value')));
             $(this).addClass('active');
             //触发开始事件
-            if (typeof opt.beforeSelect !== 'undefined') {
-                opt.beforeSelect(myPlugin);
+            if (typeof myPlugin.opt.beforeSelect !== 'undefined') {
+                myPlugin.opt.beforeSelect(myPlugin);
             }
         });
         $this.on('mouseover', '.rate-table-td', function () {
@@ -203,7 +230,10 @@
                         yMax = startTemp.y;
                     }
                     for (var j = yMin; j <= yMax; j++) {
-                        $this.find('.rate-table-td[data-row="' + j + '"][data-col="' + i + '"]').addClass('active');
+                        var $dom = $this.find('.rate-table-td[data-row="' + j + '"][data-col="' + i + '"]'),
+                            val = $dom.attr('data-value');
+                        // $dom.removeClass('rate-table-td-' + getColor(myPlugin, val))
+                        $dom.addClass('active');
                     }
                 }
             })
@@ -219,23 +249,61 @@
         //清空开始和结束对象
         myPlugin.start = null;
         myPlugin.end = null;
-        //清除选中前,改变背景色
-
         //清空已选中对象
         myPlugin.$this.find('.active').each(function () {
-            $(this).css('background-color',getRandomColor($(this).attr('data-value')));
+            //清除选中前,改变背景色
             $(this).removeClass('active');
+            $(this).attr('class', $(this).attr('class').replace(/(rate-table-td-)(([a-zA-Z0-9]){6})/g, ''));
+            $(this).addClass('rate-table-td-' + getColor(myPlugin, $(this).attr('data-value')));
         });
     }
+    /**
+     * 颜色选择
+     * @param plugin
+     * @param num
+     * @returns {*}
+     */
+    var getColor = function (plugin, num) {
+        var result = plugin.colorMap[num];
+        if (!result) {
+            // var random = Math.random() * 360;
+            // result = 'hsla(' + Math.floor(random) + ',70%,90%,1)';
+            result = plugin.color.shift();
+            plugin.colorMap[num] = result;
+        }
+        return result;
+    }
+    /**
+     * 随机数
+     * @returns {number}
+     */
+    // var randomNumber = function () {
+    //     var random = Math.random() * 360, flag = false;
+    //     for (var i in colorMap) {
+    //         if (colorMap[i] == random) {
+    //             flag = true;
+    //             break;
+    //         }
+    //     }
+    //     if (flag) {
+    //         random = randomNumber();
+    //     }
+    //     return random;
+    // }
 
     //插件实例
     MyPlugin.prototype = {
         $this: null,
         opt: null,
         start: null,
-        end: null
+        end: null,
+        color: null,
+        colorMap: null
     }
-    function MyPlugin() {}
+
+    function MyPlugin() {
+    }
+
     /**
      * 日期框选插件
      * @param options
