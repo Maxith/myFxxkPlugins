@@ -1,0 +1,79 @@
+.rate-table{
+    -moz-user-select:none;
+    -webkit-user-select:none;
+}
+.rate-table .rate-table-row{
+    line-height: 35px;
+}
+.rate-table .rate-table-head-row{
+    border: 1px solid gray;
+}
+.rate-table .rate-table-day{
+    border-bottom: 1px solid gray;
+}
+.rate-table .rate-table-td{
+    border-bottom: 1px solid gray;
+}
+.rate-table .active{
+    background-color: #51f6a3;
+}
+.rate-table-td-dee1f4{
+    background-color: #dee1f4;
+}
+.rate-table-td-d2ddf4{
+    background-color: #d2ddf4;
+}
+.rate-table-td-c7d9f5{
+    background-color: #c7d9f5;
+}
+.rate-table-td-bcd5f5{
+    background-color: #bcd5f5;
+}
+.rate-table-td-b1d2f6{
+    background-color: #b1d2f6;
+}
+.rate-table-td-a6cef6{
+    background-color: #a6cef6;
+}
+.rate-table-td-9bcaf7{
+    background-color: #9bcaf7;
+}
+.rate-table-td-90c7f7{
+    background-color: #90c7f7;
+}
+.rate-table-td-85c3f8{
+    background-color: #85c3f8;
+}
+.rate-table-td-7abff8{
+    background-color: #7abff8;
+}
+.rate-table-td-6fbcf9{
+    background-color: #6fbcf9;
+}
+.rate-table-td-63b8fa{
+    background-color: #63b8fa;
+}
+.rate-table-td-58b4fa{
+    background-color: #58b4fa;
+}
+.rate-table-td-4db0fb{
+    background-color: #4db0fb;
+}
+.rate-table-td-42adfb{
+    background-color: #42adfb;
+}
+.rate-table-td-37a9fc{
+    background-color: #37a9fc;
+}
+.rate-table-td-2ca5fc{
+    background-color: #2ca5fc;
+}
+.rate-table-td-21a2fd{
+    background-color: #21a2fd;
+}
+.rate-table-td-169efd{
+    background-color: #169efd;
+}
+.rate-table-td-0b9afe{
+    background-color: #0b9afe;
+}
