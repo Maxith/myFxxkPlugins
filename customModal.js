@@ -69,7 +69,7 @@
                     }
                 }
             ],
-            'size': 'modal-lg',  //模态框大小class 默认两种:modal-lg,modal-sm
+            'size': 'modal-md',  //模态框大小class 默认两种:,modal-sm ,modal-lg
             'isStatic': true,     //是否静态,当不为静态时点击其他地方自动关闭模态框
             'onLoadComplete' : function () { //加载完成事件
 
@@ -184,8 +184,10 @@
         var model = $(modalContent).find('#' + options.id);
         model.find('.modal-footer').find('button:first').unbind('click');
         model.find('.modal-footer').find('button:first').click(function () {
-            options.onConfirm();
             model.modal('hide');
+            setTimeout(function () {
+                options.onConfirm();
+            },100)
         });
         //窗口关闭事件绑定
         model.on('hidden.bs.modal', function () {

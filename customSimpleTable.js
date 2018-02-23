@@ -7,14 +7,15 @@
      * @author zhouyou
      * @date 2018/1/4 15:32
      */
-    $.fn.customSimpleTable = function (options,dataTableConfig) {
-        var def = $.extend({
+    $.fn.customSimpleTable = function (options) {
+        var def = $.extend({},{
             'pageLength' : 15,
             'url' : null,   //表单内容链接地址
             'columns': null,    //表格定义
             'language' : document.getElementsByTagName('html')[0].lang,   //默认中文
             'onLoaded' : null,  //加载完成事件
-            'data' : null
+            'data' : null,
+            'columnDefs' : []
         },options);
 
         var url = 'bower_components/datatables.net/i18n/' + def.language + '.json';
@@ -26,7 +27,7 @@
             'ordering' : false,    //排序
             'processing' : true,    //进度条
             'autoWidth' : false,  //自动宽度
-            'scrollX' : true,   //水平滚动
+            // 'scrollX' : true,   //水平滚动
             'serverSide' : true,   //服务器模式
             'lengthChange': false,  //关闭行数选择
             'language': {           //国际化
@@ -37,8 +38,9 @@
                 'type': 'post',
                 'data': def.data
             },
-            'columns' : def.columns
-        },dataTableConfig);
+            'columns' : def.columns,
+            'columnDefs' : def.columnDefs
+        });
 
         var obj = $(this).DataTable(opt);
 

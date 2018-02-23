@@ -43,6 +43,9 @@
          * @returns {*}
          */
         division : function (a, b) {
+            if (a == 0){
+                return 0;
+            }
             return fixedFloat(a, b, '/');
         }
     }
