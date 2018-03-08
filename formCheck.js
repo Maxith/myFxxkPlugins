@@ -14,7 +14,7 @@
             }
         ]
     };
-    var errorMsg = '<span class="help-block error-msg">#msg#</span>';
+    var errorMsg = '<span class="help-block error-msg hide">#msg#</span>';
     /**
      * 方法列表
      * @type {{init: init}}
@@ -30,7 +30,6 @@
             //存储实例对象
             $this.data('form_Check', myPlugin);
             //添加事件监听
-            debugger
             if (opt.fields.length > 0) {
                 for (var i = 0; i < opt.fields.length; i++) {
                     var _item = opt.fields[i],
@@ -48,7 +47,6 @@
         check: function () {
             var $this = $(this),
                 myPlugin = $this.data('form_Check');
-            console.log($this.data())
             if (myPlugin == null){
                 $.error('plugin has not inited');
                 return false;
@@ -80,10 +78,8 @@
     }
     //事件绑定
     var eventBind = function (_item, $dom) {
-        console.log('eventBind')
         var trigger = _item.trigger || 'form_check_trigger';
         $dom.on(trigger, function (event,_callback) {
-            console.log('trigger')
             if (typeof _item.func !== 'undefined') {
                 var flag = _item.func($dom);
                 if (!flag) {
@@ -92,11 +88,17 @@
                 _callback(flag);
             }
         });
+        $dom.on('focus', function () {
+            $dom.parent().find('.error-msg').addClass('hide');
+            $dom.parent().removeClass('has-error');
+        });
+        //设置错误消息
+        var msg = errorMsg.replace(/#msg#/,_item.msg);
+        $dom.parent().append(msg);
     }
     //设置消息
     var setMessage = function (_item, $dom) {
-        var msg = errorMsg.replace(/#msg#/,_item.msg);
-        $dom.parent().append(msg);
+        $dom.parent().find('.error-msg').removeClass('hide');
         $dom.parent().addClass('has-error');
     }
 
