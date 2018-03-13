@@ -92,6 +92,10 @@
             $dom.parent().find('.error-msg').addClass('hide');
             $dom.parent().removeClass('has-error');
         });
+        $dom.children().on('click', function () {
+            $dom.parent().find('.error-msg').addClass('hide');
+            $dom.parent().removeClass('has-error');
+        });
         //设置错误消息
         var msg = errorMsg.replace(/#msg#/,_item.msg);
         $dom.parent().append(msg);
