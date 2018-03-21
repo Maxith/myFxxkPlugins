@@ -14,17 +14,7 @@
             }
         ]
     };
-    //默认验证规则
-    var defaultRules = {
-        'required' : function ($dom) {
-            if ($dom.val() == '') {
-                return false;
-            }
-            return true;
-        }
-    }
-    
-    var errorMsg = '<span class="help-block error-msg hide">#msg#</span>';
+    var errorMsg = '<span class="help-block error-msg hide #class#">#msg#</span>';
     /**
      * 方法列表
      * @type {{init: init}}
@@ -46,7 +36,7 @@
                         $dom = $this.find('#' + _item.id);
                     if ($dom[0]) {
                         for (var j = 0; j < _item.valids.length; j++) {
-                            eventBind(_item.valids[j],$dom);
+                            eventBind(_item.valids[j], $dom);
                         }
                     } else {
                         $.error('id ' + _item.id + ' not found');
@@ -54,28 +44,35 @@
                 }
             }
         },
-        check: function () {
+        /**
+         * 方法:检查
+         * @param _success  成功验证后的回调
+         * @param _fail     验证失败后的回调
+         * @returns {boolean}
+         */
+        check: function (_success,_fail) {
             var $this = $(this),
                 myPlugin = $this.data('form_Check');
-            if (myPlugin == null){
+            if (myPlugin == null) {
                 $.error('plugin has not inited');
                 return false;
             }
-            var opt = myPlugin.opt,
-                result = true;
+            var opt = myPlugin.opt;
 
-            //执行所有事件
+            //全局结果
+            var globalResult = false;
+            //事件集合
+            var eventArray = [];
             if (opt.fields.length > 0) {
                 for (var i = 0; i < opt.fields.length; i++) {
                     var _item = opt.fields[i],
                         $dom = $this.find('#' + _item.id);
                     if ($dom[0]) {
                         for (var j = 0; j < _item.valids.length; j++) {
-                            var trigger = _item.trigger || 'form_check_trigger';
-                            $dom.trigger(trigger,function (flag) {
-                                if (!flag){
-                                    result = flag;
-                                }
+                            eventArray.push(function () {
+                                var dtd = $.Deferred();
+                                syncTrigger(_item, $dom, globalResult)
+                                return dtd;
                             });
                         }
                     } else {
@@ -83,55 +80,65 @@
                     }
                 }
             }
-            return result
+            //执行所有事件
+            if (eventArray.length > 0){
+                $.when.apply($, eventArray).then(function () {
+                    console.log(globalResult)
+                    if (globalResult){
+                        if (typeof _success !== 'undefined') {
+                            _success();
+                        }
+                    }else {
+                        if (typeof _fail !== 'undefined') {
+                            _fail();
+                        }
+                    }
+                })
+            }
+            return $this;
         }
     }
     //事件绑定
     var eventBind = function (_item, $dom) {
         var trigger = _item.trigger || 'form_check_trigger';
-        $dom.on(trigger, function (event,_callback) {
-            var flag;
-            if (typeof _item.func == 'string'){
-                flag = defaultRules[_item.func].call(this,$dom);
-            }else if (typeof _item.func !== 'undefined') {
-                flag = _item.func($dom);
-            }
-            if (!flag) {
-                setMessage($dom);
-            }
-            if (typeof _callback !== 'undefined'){
-                _callback(flag);
+        $dom.on(trigger, function () {
+            if (typeof _item.func !== 'undefined') {
+                var flag = _item.func($dom);
+                if (!flag) {
+                    setMessage(_item, $dom);
+                }
             }
         });
         $dom.on('focus', function () {
-            hideMessage($dom);
+            $dom.parent().find('.trigger_' + trigger).addClass('hide');
+            $dom.parent().removeClass('has-error');
         });
         $dom.children().on('click', function () {
-            hideMessage($dom);
+            $dom.parent().find('.trigger_' + trigger).addClass('hide');
+            $dom.parent().removeClass('has-error');
         });
         //设置错误消息
-        var msg = errorMsg.replace(/#msg#/,_item.msg);
-        findParent($dom).append(msg);
-    }
-    //寻找父节点
-    var findParent = function ($dom) {
-        var $parent = $dom.parent();
-        if (!$parent.hasClass('form-group')){
-            $parent = $parent.parent();
-        }
-        return $parent;
-    }
-    //设置消息
-    var setMessage = function ($dom) {
-        findParent($dom).find('.error-msg').removeClass('hide');
-        findParent($dom).addClass('has-error');
-    }
-    //隐藏消息
-    var hideMessage = function ($dom) {
-        findParent($dom).find('.error-msg').addClass('hide');
-        findParent($dom).removeClass('has-error');
+        var msg = errorMsg.replace(/#msg#/, _item.msg);
+        msg = msg.replace(/#class#/, 'trigger_' + trigger);
+        $dom.parent().append(msg);
     }
 
+    //同步触发器
+    var syncTrigger = function (_item, $dom, globalResult) {
+        var trigger = _item.trigger || 'form_check_trigger';
+        $dom.trigger(trigger, function (flag) {
+            if (globalResult) {
+                globalResult = flag
+            }
+        });
+    }
+
+    //设置消息
+    var setMessage = function (_item, $dom) {
+        var trigger = _item.trigger || 'form_check_trigger';
+        $dom.parent().find('.trigger_' + trigger).removeClass('hide');
+        $dom.parent().addClass('has-error');
+    }
 
     //插件实例
     MyPlugin.prototype = {
