@@ -15,12 +15,15 @@
             'columns': null,    //表格定义
             'language': document.getElementsByTagName('html')[0].lang,   //默认中文
             'onLoaded': null,  //加载完成事件
-            'data': null,
+            'data': function () {},
+            'autoWidth': false,  //自动宽度
+            'scrollX': false,
             'scrollY': false,
+            'scrollCollapse': true,
             'columnDefs': []
         }, options);
 
-        var url = 'bower_components/datatables.net/i18n/' + def.language + '.json';
+        var url = 'bower_components/datatables/i18n/' + def.language + '.json';
 
         var opt = $.extend({}, {
             'info' : !def.hidePager,
@@ -29,10 +32,11 @@
             'searching': false,   //查询,
             'ordering': false,    //排序
             'processing': true,    //进度条
-            'autoWidth': false,  //自动宽度
-            // 'scrollX' : true,   //水平滚动
+            'autoWidth': def.autoWidth,  //自动宽度
+            'scrollX' : def.scrollX,   //水平滚动
+            'scrollXInner' : '100%',
             'scrollY': def.scrollY,
-            'scrollCollapse': true,
+            'scrollCollapse': def.scrollCollapse,
             'serverSide': true,   //服务器模式
             'lengthChange': false,  //关闭行数选择
             'language': {           //国际化
@@ -41,7 +45,12 @@
             'ajax': {              //异步加载
                 'url': def.url,
                 'type': 'post',
-                'data': def.data
+                'data': function (d) {
+                    if (typeof def.data !== 'undefined'){
+                        d = $.extend({},d,def.data());
+                    }
+                    return d;
+                }
             },
             'columns': def.columns,
             'columnDefs': def.columnDefs
@@ -55,6 +64,15 @@
                 def.onLoaded(e, setting, json);
             });
         }
+        //设置表头动态宽度
+        try {
+            if (contentResizeEvent !== 'undefined'){
+                contentResizeEvent = function () {
+                    $('.dataTables_scrollHeadInner').css({'width':'100%'});
+                    $('.dataTables_scrollHeadInner').find('table').css({'width':'100%'});
+                }
+            }
+        }catch (ex){}
 
         return obj;
     }

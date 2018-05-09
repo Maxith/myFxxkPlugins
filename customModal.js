@@ -91,7 +91,7 @@
             return;
         }
         //清空弹出层
-        $(modalContent).empty();
+        closeAndClear(modalContent);
 
         //创建modal
         $(modalContent).append(buildModal(options));
@@ -129,13 +129,11 @@
         })
 
         //激活modal
-        setTimeout(function () {
-            model.modal({
-                'keyboard': false,
-                'show': true,
-                'backdrop': !options.isStatic
-            });
-        }, 100);
+        model.modal({
+            'keyboard': false,
+            'show': true,
+            'backdrop': !options.isStatic
+        });
     }
     /**
      * ============================ 下述自定义确认模态框 =============================================
@@ -159,7 +157,7 @@
             return;
         }
         //清空弹出层
-        $(modalContent).empty();
+        closeAndClear(modalContent);
 
         //创建modal
         var custom = '<div class="modal fade myConfirmModal" id="#id#" tabindex="-1" role="dialog" aria-labelledby="myConfirmModalLabel">' +
@@ -205,13 +203,11 @@
             }
         })
         //激活modal
-        setTimeout(function () {
-            model.modal({
-                'keyboard': false,
-                'show': true,
-                'backdrop': false
-            });
-        }, 100);
+        model.modal({
+            'keyboard': false,
+            'show': true,
+            'backdrop': false
+        });
     }
 
     /**
@@ -221,16 +217,15 @@
      * 自定义提示模态框
      * @param options
      */
-    $.fn.myAlertModal = function (content,time) {
+    $.fn.myAlertModal = function (content,time,backdrop) {
         var modalContent = window.top.document.getElementById('modalContent');
         if (modalContent.length < 1) {
             return;
         }
-        //清空弹出层
-        $(modalContent).empty();
-
+        //关闭并清理弹出层
+        closeAndClear(modalContent);
         //创建modal
-        var custom = '<div class="modal fade myAlertModal" id="myAlertModal" tabindex="-1" role="dialog" aria-labelledby="myConfirmModalLabel">' +
+        var custom = '<div class="modal fade myAlertModal" id="myAlertModal" tabindex="-1" role="dialog" aria-labelledby="myAlertModalLabel">' +
             '        <div class="modal-dialog" role="document">' +
             '            <div class="modal-content">' +
             '                <div class="modal-body text-warning">' +
@@ -243,14 +238,11 @@
         $(modalContent).append(custom);
 
         //激活modal
-        var model = $(modalContent).find('#myAlertModal');
-        setTimeout(function () {
-            model.modal({
-                'keyboard': false,
-                'show': true,
-                'backdrop': true
-            });
-        }, 100);
+        var model = $(modalContent).find('#myAlertModal').modal({
+            'keyboard': false,
+            'show': true,
+            'backdrop': backdrop
+        });
         //定时关闭
         if (!time){
             time = 1500;
@@ -258,5 +250,16 @@
         setTimeout(function () {
             model.modal('hide');
         },time)
+    }
+    /**
+     * 关闭并清理弹出层
+     */
+    var closeAndClear = function (modalContent) {
+        try {
+            //清理弹出层
+            $(modalContent).empty();
+            //清除遮罩层
+            $('.modal-backdrop').remove();
+        }catch (e){}
     }
 })(jQuery);

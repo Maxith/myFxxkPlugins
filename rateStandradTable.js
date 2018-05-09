@@ -254,7 +254,11 @@
             //清除选中前,改变背景色
             $(this).removeClass('active');
             $(this).attr('class', $(this).attr('class').replace(/(rate-table-td-)(([a-zA-Z0-9]){6})/g, ''));
-            $(this).addClass('rate-table-td-' + getColor(myPlugin, $(this).attr('data-value')));
+
+            var dataValue = $(this).attr('data-value');
+            if (dataValue != '-1'){
+                $(this).addClass('rate-table-td-' + getColor(myPlugin,dataValue));
+            }
         });
     }
     /**
